@@ -1,0 +1,17 @@
+// Recursive fibonnaci.
+// Compute the x'th fibonacci number.
+function fib(x : int) {
+    let count : int = 0;
+    count = count + 1;
+    if (x < 3) {
+        1;
+    } else {
+        fib(x - 1) + fib(x - 2);
+    }
+}
+
+let N : int = 20;
+
+function main() {
+    fib(N);
+}

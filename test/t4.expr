@@ -1,0 +1,19 @@
+function main() -> double
+{
+    var two: double = -8;
+    var semp: double = two + 11;
+
+    if (two < stemp) {
+       two = 99;
+       return 100;
+       two = 91;
+       two = 92;
+       two = 93;
+    } else {
+       two = 100;
+       return 100;
+    }
+
+    return 0;
+    two = 1 * 2 / 3 + 4;
+}

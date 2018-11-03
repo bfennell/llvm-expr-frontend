@@ -1,0 +1,10 @@
+function sum(x) {
+    if (x < 1) {
+       0;
+    } else {
+      x + sum(x-1);
+    }
+}
+
+var N = 100;
+sum(N);

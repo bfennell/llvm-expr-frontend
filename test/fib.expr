@@ -1,0 +1,20 @@
+extern function putchard(x) -> double;
+extern function printd(x) -> double;
+
+// Recursive fibonnaci.
+// Compute the x'th fibonacci number.
+function fib(x) -> double
+{
+    if (x < 3) {
+        1;
+    } else {
+        fib(x - 1) + fib(x - 2);
+    }
+}
+
+function main() -> double
+{
+    putchard(61);putchard(61);putchard(61);putchard(10);
+    printd(fib(10));
+    0;
+}

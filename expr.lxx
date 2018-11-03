@@ -1,0 +1,120 @@
+%e  1019
+%p  2807
+%n  371
+%k  284
+%a  1213
+%o  1117
+
+O   [0-7]
+D   [0-9]
+NZ  [1-9]
+L   [a-zA-Z_]
+A   [a-zA-Z_0-9]
+H   [a-fA-F0-9]
+HP  (0[xX])
+E   ([Ee][+-]?{D}+)
+P   ([Pp][+-]?{D}+)
+FS  (f|F|l|L)
+IS  (((u|U)(l|L|ll|LL)?)|((l|L|ll|LL)(u|U)?))
+CP  (u|U|L)
+SP  (u8|u|U|L)
+ES  (\\(['"\?\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+))
+NL  \n
+WS  [ \t\v\n\f]
+
+%{
+#include <iostream>
+#include <cstdlib>
+#include <cstdio>
+
+#include "scanner.h"
+
+using namespace std;
+
+int lex_lineno = 1;
+int lex_colno = 1;
+
+static void colup (void)
+{
+	//extern size_t yyleng;
+	lex_colno += yyleng;
+}
+
+extern void yyerror(const char *);  /* prints grammar violation message */
+
+static void comment(void);
+
+%}
+
+%%
+"/*"                        { colup(); comment(); }
+"//".*                      { colup(); /* consume //-comment */ }
+"function"                  { colup(); return TokenId_FUNCTION; }
+"if"                        { colup(); return TokenId_IF; }
+"else"                      { colup(); return TokenId_ELSE; }
+"for"                       { colup(); return TokenId_FOR; }
+"var"                       { colup(); return TokenId_VAR; }
+"extern"                    { colup(); return TokenId_EXTERN; }
+"return"                    { colup(); return TokenId_RETURN; }
+{L}{A}*					    { colup(); return TokenId_NAME; }
+{HP}{H}+{IS}?				{ colup(); return TokenId_I_CONSTANT; }
+{NZ}{D}*{IS}?				{ colup(); return TokenId_I_CONSTANT; }
+"0"{O}*{IS}?				{ colup(); return TokenId_I_CONSTANT; }
+{CP}?"'"([^'\\\n]|{ES})+"'"	{ colup(); return TokenId_I_CONSTANT; }
+{D}+{E}{FS}?				{ colup(); return TokenId_F_CONSTANT; }
+{D}*"."{D}+{E}?{FS}?		{ colup(); return TokenId_F_CONSTANT; }
+{D}+"."{E}?{FS}?			{ colup(); return TokenId_F_CONSTANT; }
+{HP}{H}+{P}{FS}?			{ colup(); return TokenId_F_CONSTANT; }
+{HP}{H}*"."{H}+{P}{FS}?		{ colup(); return TokenId_F_CONSTANT; }
+{HP}{H}+"."{P}{FS}?			{ colup(); return TokenId_F_CONSTANT; }
+({SP}?\"([^"\\\n]|{ES})*\"{WS}*)+	{ colup(); return TokenId_STRING_LITERAL; }
+"->"                { colup(); return TokenId_RETTYPE; }
+":"					{ colup(); return TokenId_COLON; }
+";"					{ colup(); return TokenId_SEMICOLON; }
+"="					{ colup(); return TokenId_ASSIGN; }
+"("					{ colup(); return TokenId_OBRACE; }
+")"					{ colup(); return TokenId_CBRACE; }
+"{"					{ colup(); return TokenId_OCBRACE; }
+"}"					{ colup(); return TokenId_CCBRACE; }
+"-"					{ colup(); return TokenId_MINUS; }
+"+"					{ colup(); return TokenId_PLUS; }
+"*"					{ colup(); return TokenId_MULT; }
+"/"					{ colup(); return TokenId_DIVIDE; }
+","					{ colup(); return TokenId_COMMA; }
+"<"					{ colup(); return TokenId_LT; }
+">"					{ colup(); return TokenId_GT; }
+
+{NL}                                    { lex_lineno++; lex_colno = 0;      }
+{WS}					{ colup(); /* whitespace separates tokens */ }
+.					{ colup(); /* discard bad characters */      }
+
+%%
+
+int yywrap(void)        /* called at end of input */
+{
+    return 1;           /* terminate now */
+}
+
+static void comment(void)
+{
+    extern FILE *yyin;
+    int c;
+
+    while ((c = fgetc (yyin)) != 0)
+        if (c == '*')
+        {
+            while ((c = fgetc (yyin)) == '*')
+                ;
+
+            if (c == '/')
+                return;
+
+            if (c == 0)
+                break;
+        }
+    printf ("unterminated comment\n");
+
+    /* The next two lines are simply to prevent 2 compiler warnings*/
+    yyinput ();
+    yyunput (' ', 0);
+}

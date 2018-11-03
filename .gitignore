@@ -1,0 +1,13 @@
+*.o
+*.a
+*.d
+*~
+expr
+lex.yy.cc
+test/test.out
+*.ll
+*/*.o
+*/*.s
+test/fib
+test/t3
+*.s

@@ -50,3 +50,22 @@ Toy frontend for llvm
          | − prim
          | '(' expr ')'
          | func_call
+
+## Example
+    extern function printd(x) -> double;
+
+    // Recursive fibonnaci.
+    function fib(x) -> double
+    {
+        if (x < 3) {
+            1;
+        } else {
+            fib(x - 1) + fib(x - 2);
+        }
+    }
+
+    function main() -> double
+    {
+        printd(fib(10));
+        0;
+    }
